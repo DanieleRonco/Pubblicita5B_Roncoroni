@@ -8,13 +8,19 @@ import org.json.*;
 
 public class TestTelegramAPI {
     public static void main(String[] args) throws IOException, InterruptedException {
-        String ID = "5123384303";
-        TelegramAPI tUtility = new TelegramAPI("5132830366:AAFtRD0PsuAuYtsKOqmrCg9sdbZ14rvN0zM", ID);
+        TelegramAPI tUtility = new TelegramAPI("5132830366:AAFtRD0PsuAuYtsKOqmrCg9sdbZ14rvN0zM");
         
-        //Scanner jin = new Scanner(System.in);
-        //String testoDaInviare = jin.nextLine();
-        tUtility.sendMessage("Ciao");
+        /*
+        Scanner jin = new Scanner(System.in);
+        String testoDaInviare = jin.nextLine();
+        String ID;
+        ID = "";
+        ID = "578041481";
+        tUtility.sendMessage(testoDaInviare, ID);
+        */
         
-        //List<TUpdate> Lista = tUtility.getUpdates();
+        List<TUpdate> Lista = tUtility.getUpdates();
+        
+        while(true);
     }
 }

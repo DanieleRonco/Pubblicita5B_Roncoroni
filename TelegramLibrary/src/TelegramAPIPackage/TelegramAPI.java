@@ -21,21 +21,17 @@ public class TelegramAPI {
     private String URL;
     //API_KEY
     private String API_KEY;
-    //CHAT_ID
-    private String CHAT_ID;
     
     //COSTRUTTORI
     //Costruttore di default
     public TelegramAPI(){
         this.API_KEY = "";
         this.URL = "";
-        this.CHAT_ID = "";
     }
     //Costruttore parametrico
-    public TelegramAPI(String API_KEY, String CHAT_ID){
+    public TelegramAPI(String API_KEY){
         this.API_KEY = API_KEY;
         this.URL = "https://api.telegram.org/bot" + API_KEY;
-        this.CHAT_ID = CHAT_ID;
     }
     
     public List<TUpdate> getUpdates() throws IOException, InterruptedException{
@@ -73,18 +69,20 @@ public class TelegramAPI {
             long from_id = from.getLong("id");
             boolean from_is_bot = from.getBoolean("is_bot");
             String from_first_name = from.getString("first_name");
-            String from_last_name = from.getString("last_name");
-            String from_language_code = from.getString("language_code");
+            //String from_last_name = from.getString("last_name");
+            //String from_language_code = from.getString("language_code");
             
             //Chat
             JSONObject chat = message.getJSONObject("chat");
             long chat_id = chat.getLong("id");
             String chat_first_name = chat.getString("first_name");
-            String chat_last_name = chat.getString("last_name");
-            String chat_type = chat.getString("type");            
+            //String chat_last_name = chat.getString("last_name");
+            //String chat_type = chat.getString("type");            
             
-            TUser tUtente = new TUser(from_id, from_is_bot, from_first_name, from_last_name, from_language_code);
-            TChat tChat = new TChat(chat_id, chat_first_name, chat_last_name, chat_type);
+            //TUser tUtente = new TUser(from_id, from_is_bot, from_first_name, from_last_name, from_language_code);
+            TUser tUtente = new TUser(from_id, from_first_name);
+            //TChat tChat = new TChat(chat_id, chat_first_name, chat_last_name, chat_type);
+            TChat tChat = new TChat(chat_id, chat_first_name);
             TMessage tMessaggio = new TMessage(message_id, tUtente, tChat, date, text);
             TUpdate tAggiornamento = new TUpdate(update_id, tMessaggio);
             
@@ -94,7 +92,7 @@ public class TelegramAPI {
         return ListaUpdate;
     }
     
-    public boolean sendMessage(String testoDaInviare) throws UnsupportedEncodingException, IOException, InterruptedException{
+    public boolean sendMessage(String testoDaInviare, String CHAT_ID) throws UnsupportedEncodingException, IOException, InterruptedException{
         testoDaInviare = this.encodeValue(testoDaInviare);
         String sendMessageURL = URL + "/sendMessage?chat_id=" + CHAT_ID + "&text=" + testoDaInviare;
         

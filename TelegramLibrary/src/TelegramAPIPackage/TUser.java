@@ -26,6 +26,14 @@ public class TUser {
         this.LastName = "";
         this.LanguageCode = "";
     }
+    //Costruttore parametrico - con solo attributi obbligatori e con bot sempre a false
+    public TUser(long ID, String FirstName){
+        this.UserID = ID;
+        this.Bot = false;
+        this.FirstName = FirstName;
+        this.LastName = "";
+        this.LanguageCode = "";
+    }
     //Costruttore parametrico - con bot come parametro
     public TUser(long ID, boolean Bot, String FirstName, String LastName, String LanguageCode) {
         this.UserID = ID;

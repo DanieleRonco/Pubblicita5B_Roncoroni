@@ -23,6 +23,13 @@ public class TChat {
         this.LastName = "";
         this.Type = "";
     }
+    //Costruttore parametrico - con solo attributi obbligatori
+    public TChat(long ID, String FirstName){
+        this.UserID = ID;
+        this.FirstName = FirstName;
+        this.LastName = "";
+        this.Type = "";
+    }
     //Costruttore parametrico
     public TChat(long ID, String FirstName, String LastName, String Type) {
         this.UserID = ID;
