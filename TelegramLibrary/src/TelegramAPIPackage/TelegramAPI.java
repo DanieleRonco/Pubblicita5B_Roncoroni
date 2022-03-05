@@ -54,7 +54,7 @@ public class TelegramAPI {
         String risposta = response.body();
         
         List<TUpdate> ritorno = this.ConvertiDaJSONgetUpdates(risposta);
-        offset = (ritorno.get(ritorno.size() - 1).getUpdateID());
+        if(ritorno.size() != 0) offset = (ritorno.get(ritorno.size() - 1).getUpdateID()) + 1;
         
         return ritorno;
     }
