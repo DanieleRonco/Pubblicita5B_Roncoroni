@@ -22,20 +22,28 @@ public class TelegramAPI {
     //API_KEY
     private String API_KEY;
     
+    //ID dell'ultimo update da essere ritornato - usato in getUpdates per non ottenere una lista eccessivamente lunga
+    long offset;
+    
     //COSTRUTTORI
     //Costruttore di default
     public TelegramAPI(){
         this.API_KEY = "";
         this.URL = "";
+        
+        this.offset = 0;
     }
     //Costruttore parametrico
     public TelegramAPI(String API_KEY){
         this.API_KEY = API_KEY;
         this.URL = "https://api.telegram.org/bot" + API_KEY;
+        
+        this.offset = 0;
     }
     
     public List<TUpdate> getUpdates() throws IOException, InterruptedException{
         String getUpdatesURL = URL + "/getUpdates";
+        if(offset != 0) getUpdatesURL = URL + "/getUpdates?offset=" + String.valueOf(offset);
         HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create(getUpdatesURL))
         .method("GET", HttpRequest.BodyPublishers.noBody())
@@ -45,7 +53,10 @@ public class TelegramAPI {
         
         String risposta = response.body();
         
-        return this.ConvertiDaJSONgetUpdates(risposta);
+        List<TUpdate> ritorno = this.ConvertiDaJSONgetUpdates(risposta);
+        offset = (ritorno.get(ritorno.size() - 1).getUpdateID());
+        
+        return ritorno;
     }
 
     public List<TUpdate> ConvertiDaJSONgetUpdates(String JSONBody) {
@@ -93,6 +104,8 @@ public class TelegramAPI {
     }
     
     public boolean sendMessage(String testoDaInviare, String CHAT_ID) throws UnsupportedEncodingException, IOException, InterruptedException{
+        //if(offset != "") aggiungi offset;
+        
         testoDaInviare = this.encodeValue(testoDaInviare);
         String sendMessageURL = URL + "/sendMessage?chat_id=" + CHAT_ID + "&text=" + testoDaInviare;
         
