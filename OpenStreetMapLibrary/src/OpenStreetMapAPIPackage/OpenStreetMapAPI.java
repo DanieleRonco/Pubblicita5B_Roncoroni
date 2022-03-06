@@ -57,7 +57,7 @@ public class OpenStreetMapAPI {
     }
     
     public OCoordinate TrovaCoordinate(String luogo) throws FileNotFoundException, UnsupportedEncodingException, MalformedURLException, IOException, ParserConfigurationException, SAXException{
-        String xmlFile = "xml/luogo.xml";
+        //String xmlFile = "xml/luogo.xml";
         PrintWriter out = new PrintWriter(xmlFile);
         
         String stringaURL = "https://nominatim.openstreetmap.org/search?q=" + encodeValue(luogo) + "&format=xml&addressdetails=1";

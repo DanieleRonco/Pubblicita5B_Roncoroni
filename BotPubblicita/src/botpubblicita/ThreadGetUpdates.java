@@ -1,10 +1,15 @@
 package botpubblicita;
 
 import TelegramAPIPackage.*;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -12,16 +17,16 @@ import java.util.logging.Logger;
  */
 public class ThreadGetUpdates extends Thread {
     //ATTRIBUTI
-    TelegramAPI tBot;
+    CPubblicita pubblicita;
     
     //COSTRUTTORE
     //Costruttore di default
     public ThreadGetUpdates(){
-        this.tBot = null;
+        this.pubblicita = null;
     }
-    //Costruttore parametrico - api_key
-    public ThreadGetUpdates(String api_key){
-        this.tBot = new TelegramAPI(api_key);
+    //Costruttore parametrico - TelegramAPI
+    public ThreadGetUpdates(CPubblicita pubblicita){
+        this.pubblicita = pubblicita;
     }
 
     //METODI
@@ -31,17 +36,15 @@ public class ThreadGetUpdates extends Thread {
         try{
             List<TUpdate> listaUpdates;
             while(true){
-                listaUpdates = tBot.getUpdates();
+                listaUpdates = pubblicita.gettBot().getUpdates();
                 
                 if(listaUpdates.size() != 0){
                     //c'è qualcosa all'interno della lista
-                    System.out.println("c'è qualcosa all'interno della lista");
-                    for(int i = 0; i < listaUpdates.size(); i++){
-                        System.out.println(listaUpdates.get(i).getMessaggio().getText());
-                    }
+                    System.out.println("ThreadGetUpdates: c'è qualcosa all'interno della lista");
+                    pubblicita.VerificaESalva(listaUpdates);
                 } else {
                     //non c'è nulla all'interno della lista
-                    System.out.println("non c'è nulla all'interno della lista");
+                    System.out.println("ThreadGetUpdates: non c'è nulla all'interno della lista");
                 }
                 
                 Thread.sleep(10000); //TODO: da cambiare con 60000
@@ -49,6 +52,10 @@ public class ThreadGetUpdates extends Thread {
         } catch (IOException ex) {
             Logger.getLogger(ThreadGetUpdates.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
+            Logger.getLogger(ThreadGetUpdates.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParserConfigurationException ex) {
+            Logger.getLogger(ThreadGetUpdates.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SAXException ex) {
             Logger.getLogger(ThreadGetUpdates.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

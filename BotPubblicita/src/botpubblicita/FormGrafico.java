@@ -1,5 +1,11 @@
 package botpubblicita;
 
+import OpenStreetMapAPIPackage.*;
+import TelegramAPIPackage.*;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author Daniele Roncoroni
@@ -9,12 +15,17 @@ public class FormGrafico extends javax.swing.JFrame {
     /**
      * Creates new form FormGrafico
      */
-    public FormGrafico() {
+    public FormGrafico() throws IOException {
         initComponents();
         
         System.out.println("FormGrafico: PROGRAMMA AVVIATO!");
         
-        ThreadGetUpdates tgu1 = new ThreadGetUpdates("5132830366:AAFtRD0PsuAuYtsKOqmrCg9sdbZ14rvN0zM");
+        TelegramAPI tBot = new TelegramAPI("5132830366:AAFtRD0PsuAuYtsKOqmrCg9sdbZ14rvN0zM");
+        OpenStreetMapAPI osmBot = new OpenStreetMapAPI("xml/luogo.xml");
+        
+        CPubblicita pubblicita = new CPubblicita(tBot, osmBot);
+        ThreadGetUpdates tgu1 = new ThreadGetUpdates(pubblicita);
+        
         tgu1.start();
     }
 
@@ -73,7 +84,11 @@ public class FormGrafico extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FormGrafico().setVisible(true);
+                try {
+                    new FormGrafico().setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(FormGrafico.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
