@@ -13,6 +13,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
@@ -66,18 +68,22 @@ public class CPubblicita {
             
             if(testo.startsWith("/citta")){
                 System.out.println("CPubblicita: un elemento contiene '/citta'");
-                OCoordinate coordinate = osmBot.TrovaCoordinate(testo.substring(7, testo.length()));
+                String citta = testo.substring(7, testo.length());
                 
-                CUtente daSalvare = new CUtente(updateTemp.getMessaggio().getChat().getID(), updateTemp.getMessaggio().getFrom().getFirstName(), coordinate.getLatitudine(), coordinate.getLongitudine());
+                if(!citta.equals("")){
+                    OCoordinate coordinate = osmBot.TrovaCoordinate(citta);
                 
-                if(this.IsPresente(daSalvare)){
-                    System.out.println("CPubblicita: utente già presente, aggiorno le coordinate");
-                    this.SovrascriviFile();
-                } else {
-                    System.out.println("CPubblicita: utente non presente, lo salvo");
-                    ListaUtenti.add(daSalvare);
-                    this.SalvaSuFile(daSalvare.toCsv());
-                }               
+                    CUtente daSalvare = new CUtente(updateTemp.getMessaggio().getChat().getID(), updateTemp.getMessaggio().getFrom().getFirstName(), coordinate.getLatitudine(), coordinate.getLongitudine());
+
+                    if(this.IsPresente(daSalvare)){
+                        System.out.println("CPubblicita: utente già presente, aggiorno le coordinate");
+                        this.SovrascriviFile();
+                    } else {
+                        System.out.println("CPubblicita: utente non presente, lo salvo");
+                        ListaUtenti.add(daSalvare);
+                        this.SalvaSuFile(daSalvare.toCsv());
+                    }  
+                }                             
             } else System.out.println("CPubblicita: un elemento non contiene citta");
         }
     }
@@ -87,6 +93,14 @@ public class CPubblicita {
             if(ListaUtenti.get(i).getIDChat() == daCercare.getIDChat()){
                 ListaUtenti.get(i).setLatitudine(daCercare.getLatitudine());
                 ListaUtenti.get(i).setLongitudine(daCercare.getLongitudine());
+                
+                try {
+                    tBot.sendMessage("Ciao " + ListaUtenti.get(i).getNome() + "\nCoordinate aggiornate!", Long.toString(ListaUtenti.get(i).getIDChat()));
+                } catch (IOException ex) {
+                    Logger.getLogger(CPubblicita.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(CPubblicita.class.getName()).log(Level.SEVERE, null, ex);
+                }
                 return true;
             }
         }
@@ -159,10 +173,23 @@ public class CPubblicita {
     }
     
     synchronized public void InviaPubblicita(String citta, double raggio, String testo) throws UnsupportedEncodingException, MalformedURLException, IOException, FileNotFoundException, ParserConfigurationException, SAXException{
+        System.out.println("CPubblicita: invio la pubblicità agli utenti");
+        
         OCoordinate coordinateCitta = osmBot.TrovaCoordinate(citta);
         
         for(int i = 0; i < ListaUtenti.size(); i++){
-            //se le coordinate stanno in un raggio, prendo l'id della chat e gli invio il testo
+            //double distanza = osmBot.DistanzaTraDuePunti(coordinateCitta, ListaUtenti.get(i).getLatitudine(), ListaUtenti.get(i).getLongitudine());
+            double distanza = osmBot.getDistanceFromLatLonInKm(coordinateCitta.getLatitudine(), coordinateCitta.getLongitudine(), ListaUtenti.get(i).getLatitudine(), ListaUtenti.get(i).getLongitudine());
+            
+            if(distanza < raggio){
+                System.out.println("\tCPubblicita: pubblicità inviata ad un utente");
+                String testoPubblicita = "Ciao, " + ListaUtenti.get(i).getNome() + ",\nTi propongo questa offerta:\n" + testo;
+                try {
+                    tBot.sendMessage(testoPubblicita, Long.toString(ListaUtenti.get(i).getIDChat()));
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(CPubblicita.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
         }
     }
 }
