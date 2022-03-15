@@ -43,4 +43,10 @@ public class OCoordinate {
     public void setLongitudine(long longitudine) {
         this.longitudine = longitudine;
     }
+    
+    //METODI
+    @Override
+    public String toString() {
+        return "Latitudine: " + Double.toString(latitudine) + "   Longitudine: " + Double.toString(longitudine);
+    }
 }

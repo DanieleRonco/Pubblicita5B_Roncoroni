@@ -1,3 +1,4 @@
+//TODO: CAMBIARE XML PARSER
 package OpenStreetMapAPIPackage;
 
 import java.io.FileNotFoundException;
@@ -11,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -56,19 +59,35 @@ public class OpenStreetMapAPI {
         this.document = document;
     }
     
-    public OCoordinate TrovaCoordinate(String luogo) throws FileNotFoundException, UnsupportedEncodingException, MalformedURLException, IOException, ParserConfigurationException, SAXException{
-        PrintWriter out = new PrintWriter(xmlFile);
+    //METODI
+    public OCoordinate TrovaCoordinate(String luogo) {
+        PrintWriter out;
+        try {
+            out = new PrintWriter(xmlFile);
+            String stringaURL = "https://nominatim.openstreetmap.org/search?q=" + encodeValue(luogo) + "&format=xml&addressdetails=1";
+            URL url = new URL(stringaURL);
+            Scanner s = new Scanner(url.openStream());
+            s.useDelimiter("\u001a");
+            String testo = s.next();
+            out.print(testo);
+            out.close();
         
-        String stringaURL = "https://nominatim.openstreetmap.org/search?q=" + encodeValue(luogo) + "&format=xml&addressdetails=1";
-        URL url = new URL(stringaURL);
-        Scanner s = new Scanner(url.openStream());
-        s.useDelimiter("\u001a");
-        String testo = s.next();
-        out.print(testo);
-        out.close();
-        
-        //N.B: può ritornare valore NULL
-        return this.ConvertiDaXML(xmlFile);
+            //N.B: può ritornare valore NULL
+            return this.ConvertiDaXML(xmlFile);        
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ParserConfigurationException ex) {
+            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SAXException ex) {
+            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;    
     }
     
     private OCoordinate ConvertiDaXML(String xmlFile) throws ParserConfigurationException, SAXException, IOException{
@@ -90,32 +109,20 @@ public class OpenStreetMapAPI {
         } else return null;
     }
     
-    /*public double DistanzaTraDuePunti(OCoordinate centro, OCoordinate punto){
-        return Math.sqrt(Math.pow((centro.getLatitudine() - punto.getLatitudine()), 2) + Math.pow((centro.getLongitudine() - punto.getLongitudine()), 2));
-    }*/
-    
-    public double DistanzaTraDuePunti(OCoordinate centro, double lat, double lon){
-        //return Math.sqrt(Math.pow((centro.getLatitudine() - lat), 2) + Math.pow((centro.getLongitudine() - lon), 2));
-        double sf = 3.14159 / 180;
-        return Math.acos(Math.sin(centro.getLatitudine()*sf)*Math.sin(lat*sf) + Math.cos(centro.getLatitudine()*sf)*Math.cos(lat*sf)*Math.cos(centro.getLongitudine() - lon)*sf);
-        //ACOS(SIN(E.Latitudine*${sf})*SIN(${informazioni.latitudine}*${sf}) + COS(E.Latitudine*${sf})*COS(${informazioni.latitudine}*${sf})*COS((E.Longitudine-${informazioni.longitudine})*${sf}))
-    }
-    
-    public double getDistanceFromLatLonInKm(double lat1,double lon1,double lat2,double lon2) {
-        double R = 6371; // Radius of the earth in km
-        double dLat = deg2rad(lat2-lat1);  // deg2rad below
-        double dLon = deg2rad(lon2-lon1); 
+    public double DistanzaTraDuePunti(OCoordinate c1, OCoordinate c2){
+        double R = 6371; //raggio terrestre (km)
+        double dLat = deg2rad(c2.getLatitudine()-c1.getLatitudine());
+        double dLon = deg2rad(c2.getLongitudine()-c1.getLongitudine());
         double a = 
           Math.sin(dLat/2) * Math.sin(dLat/2) +
-          Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+          Math.cos(deg2rad(c1.getLatitudine())) * Math.cos(deg2rad(c2.getLatitudine())) * 
           Math.sin(dLon/2) * Math.sin(dLon/2)
           ; 
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-        double d = R * c; // Distance in km
-        return d;
+        return R * c; //distanza (km)
     }
 
-    public double deg2rad(double deg) {
+    private double deg2rad(double deg) {
         return deg * (Math.PI/180);
     }
     

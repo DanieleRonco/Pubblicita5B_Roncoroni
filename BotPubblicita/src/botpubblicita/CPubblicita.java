@@ -1,5 +1,6 @@
 package botpubblicita;
 
+import FileAPIPackage.*;
 import OpenStreetMapAPIPackage.*;
 import TelegramAPIPackage.*;
 import java.io.BufferedReader;
@@ -25,20 +26,23 @@ import org.xml.sax.SAXException;
 public class CPubblicita {
     //ATTRIBUTI
     private TelegramAPI tBot;
-    private OpenStreetMapAPI osmBot;
+    private OpenStreetMapAPI osmAPI;
+    private FFile fileAPI;
     private List<CUtente> ListaUtenti;
     
     //COSTRUTTORE
     //Costruttore di default
     public CPubblicita(){
         this.tBot = null;
-        this.osmBot = null;
+        this.osmAPI = null;
+        this.fileAPI = null;
         this.ListaUtenti = null;
     }
     //Costruttore parametrico - TelegramAPI
-    public CPubblicita(TelegramAPI tBot, OpenStreetMapAPI osmBot) throws IOException{
+    public CPubblicita(TelegramAPI tBot, OpenStreetMapAPI osmBot, FFile fileAPI) {
         this.tBot = tBot;
-        this.osmBot = osmBot;
+        this.osmAPI = osmBot;
+        this.fileAPI = fileAPI;
         this.ListaUtenti = new ArrayList<CUtente>();
         this.CaricaSuLista();
     }
@@ -48,7 +52,10 @@ public class CPubblicita {
         return tBot;
     }
     public OpenStreetMapAPI getOsmBot() {
-        return osmBot;
+        return osmAPI;
+    }
+    public FFile getFileAPI () {
+        return fileAPI;
     }
     
     //SET
@@ -56,7 +63,10 @@ public class CPubblicita {
         this.tBot = tBot;
     }
     public void setOsmBot(OpenStreetMapAPI osmBot) {
-        this.osmBot = osmBot;
+        this.osmAPI = osmBot;
+    }
+    public void setFileAPI(FFile fileAPI) {
+        this.fileAPI = fileAPI;
     }
     
     //METODI
@@ -71,115 +81,73 @@ public class CPubblicita {
                 String citta = testo.substring(7, testo.length());
                 
                 if(!citta.equals("")){
-                    OCoordinate coordinate = osmBot.TrovaCoordinate(citta);
+                    OCoordinate coordinate = osmAPI.TrovaCoordinate(citta);
                 
                     CUtente daSalvare = new CUtente(updateTemp.getMessaggio().getChat().getID(), updateTemp.getMessaggio().getFrom().getFirstName(), coordinate.getLatitudine(), coordinate.getLongitudine());
 
-                    if(this.IsPresente(daSalvare)){
+                    int posizione = this.IsPresente(daSalvare);
+                    if(posizione != -1){
                         System.out.println("CPubblicita: utente già presente, aggiorno le coordinate");
-                        this.SovrascriviFile();
+                        ListaUtenti.get(posizione).setLatitudine(daSalvare.getLatitudine());
+                        ListaUtenti.get(posizione).setLongitudine(daSalvare.getLongitudine());
+                        
+                        try {
+                            tBot.sendMessage("Ciao " + ListaUtenti.get(posizione).getNome() + "\nCoordinate aggiornate!", Long.toString(ListaUtenti.get(posizione).getIDChat()));
+                        } catch (IOException ex) {
+                            Logger.getLogger(CPubblicita.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(CPubblicita.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        
+                        String daScrivere = "";
+                        for(int j = 0; j < ListaUtenti.size(); j++){
+                            daScrivere += ListaUtenti.get(j).toCsv();
+                        }
+                        fileAPI.AppendOSovrascriviFile(daScrivere, false);
                     } else {
                         System.out.println("CPubblicita: utente non presente, lo salvo");
                         ListaUtenti.add(daSalvare);
-                        this.SalvaSuFile(daSalvare.toCsv());
-                    }  
-                }                             
+                        fileAPI.AppendOSovrascriviFile(daSalvare.toCsv(), true);
+                        try {
+                            tBot.sendMessage("Ciao " + daSalvare.getNome() + "\nTi do il benvenuto! Da questo momento in poi, riceverai le promozioni nella tua zona", Long.toString(daSalvare.getIDChat()));
+                        } catch (IOException ex) {
+                            Logger.getLogger(CPubblicita.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(CPubblicita.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    } 
+                }
             } else System.out.println("CPubblicita: un elemento non contiene citta");
         }
     }
     
-    private boolean IsPresente(CUtente daCercare){
+    private int IsPresente(CUtente daCercare){
         for(int i = 0; i < ListaUtenti.size(); i++){
-            if(ListaUtenti.get(i).getIDChat() == daCercare.getIDChat()){
-                ListaUtenti.get(i).setLatitudine(daCercare.getLatitudine());
-                ListaUtenti.get(i).setLongitudine(daCercare.getLongitudine());
-                
-                try {
-                    tBot.sendMessage("Ciao " + ListaUtenti.get(i).getNome() + "\nCoordinate aggiornate!", Long.toString(ListaUtenti.get(i).getIDChat()));
-                } catch (IOException ex) {
-                    Logger.getLogger(CPubblicita.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(CPubblicita.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                return true;
-            }
+            if(ListaUtenti.get(i).getIDChat() == daCercare.getIDChat()) return i;
         }
-        return false;
+        return -1;
     }
     
-    private void SalvaSuFile(String daScrivere) throws IOException{
-        File fileLoaded = new File("lista.csv");
-	if(!fileLoaded.exists()) {
-            fileLoaded.createNewFile();
-	}
-		
-	FileWriter w;
-	w = new FileWriter("lista.csv", true);
-	BufferedWriter fileBuffer;
-	fileBuffer = new BufferedWriter(w);
-        
-        fileBuffer.write(daScrivere);
-		
-	fileBuffer.flush();
-	fileBuffer.close();
-	w.close();
-        
-        System.out.println("CPubblicita: elemento salvato su file");
-    }
-    
-    private void SovrascriviFile() throws IOException{
-        File fileLoaded = new File("lista.csv");
-	if(fileLoaded.exists()) {
-            fileLoaded.delete();
-	}
-	fileLoaded.createNewFile();
-		
-	FileWriter w;
-	w = new FileWriter("lista.csv");
-	BufferedWriter fileBuffer;
-	fileBuffer = new BufferedWriter(w);
-		
-	for(int i = 0; i < ListaUtenti.size(); i++){
-            fileBuffer.write(ListaUtenti.get(i).toCsv());
-	}
-	
-        fileBuffer.flush();
-	fileBuffer.close();
-        w.close();
-    }
-    
-    private void CaricaSuLista() throws FileNotFoundException, IOException{
-        File fileCheck = new File("lista.csv");
-	if(fileCheck.exists()){
-            FileReader fileLoaded;
-            fileLoaded = new FileReader("lista.csv");
-
-            BufferedReader fileBuffer;
-            fileBuffer = new BufferedReader(fileLoaded);
-
-            String rigaLetta;
-
-            while(true) {
-                rigaLetta = fileBuffer.readLine();
-		if(rigaLetta == null) break;
-                
-                String campi[] = rigaLetta.split(";");
+    private void CaricaSuLista(){
+        String tutto = fileAPI.Leggi();
+        if(!tutto.equals("")){
+            String righe[] = tutto.split("\n");
+            for(int i = 0; i < righe.length; i++){
+                String campi[] = righe[i].split(";");
                 CUtente daInserire = new CUtente(Long.parseLong(campi[0]), campi[1], Double.parseDouble(campi[2]), Double.parseDouble(campi[3]));
                 ListaUtenti.add(daInserire);
             }
-            fileBuffer.close();
-            fileLoaded.close();
         }
     }
     
     synchronized public void InviaPubblicita(String citta, double raggio, String testo) throws UnsupportedEncodingException, MalformedURLException, IOException, FileNotFoundException, ParserConfigurationException, SAXException{
         System.out.println("CPubblicita: invio la pubblicità agli utenti");
         
-        OCoordinate coordinateCitta = osmBot.TrovaCoordinate(citta);
+        OCoordinate coordinateCitta = osmAPI.TrovaCoordinate(citta);
         
         for(int i = 0; i < ListaUtenti.size(); i++){
-            //double distanza = osmBot.DistanzaTraDuePunti(coordinateCitta, ListaUtenti.get(i).getLatitudine(), ListaUtenti.get(i).getLongitudine());
-            double distanza = osmBot.getDistanceFromLatLonInKm(coordinateCitta.getLatitudine(), coordinateCitta.getLongitudine(), ListaUtenti.get(i).getLatitudine(), ListaUtenti.get(i).getLongitudine());
+            OCoordinate cTemp = new OCoordinate(ListaUtenti.get(i).getLatitudine(), ListaUtenti.get(i).getLongitudine());
+            double distanza = osmAPI.DistanzaTraDuePunti(coordinateCitta, cTemp);
             
             if(distanza < raggio){
                 System.out.println("\tCPubblicita: pubblicità inviata ad un utente");

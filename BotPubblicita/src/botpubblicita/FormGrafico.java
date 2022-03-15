@@ -1,5 +1,6 @@
 package botpubblicita;
 
+import FileAPIPackage.*;
 import OpenStreetMapAPIPackage.*;
 import TelegramAPIPackage.*;
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class FormGrafico extends javax.swing.JFrame {
     
     TelegramAPI tBot;
     OpenStreetMapAPI osmBot;
+    FFile fileAPI;
     CPubblicita pubblicita;
     ThreadGetUpdates tgu1;
     
@@ -31,8 +33,9 @@ public class FormGrafico extends javax.swing.JFrame {
         
         tBot = new TelegramAPI("5132830366:AAFtRD0PsuAuYtsKOqmrCg9sdbZ14rvN0zM");
         osmBot = new OpenStreetMapAPI("xml/luogo.xml");
+        fileAPI = new FFile("lista.csv");
         
-        pubblicita = new CPubblicita(tBot, osmBot);
+        pubblicita = new CPubblicita(tBot, osmBot, fileAPI);
         tgu1 = new ThreadGetUpdates(pubblicita);
         
         tgu1.start();
