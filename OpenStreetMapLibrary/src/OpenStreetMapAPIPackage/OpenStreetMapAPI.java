@@ -1,6 +1,7 @@
-//TODO: CAMBIARE XML PARSER
 package OpenStreetMapAPIPackage;
 
+import HTTPAPIPackage.*;
+import XMLParserAPIPackage.XMLParser;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -30,17 +31,20 @@ public class OpenStreetMapAPI {
     //ATTRIBUTI
     private String xmlFile;
     private Document document;
+    private XMLParser parser;
     
     //COSTRUTTORI
     //Costruttore di default
     public OpenStreetMapAPI(){
         this.xmlFile = "";
         this.document = null;
+        this.parser = new XMLParser();
     }
-    //Costruttore parametrico - come solo parametro XmlFile
+    //Costruttore parametrico - come solo parametro xmlFile
     public OpenStreetMapAPI(String XmlFile){
         this.xmlFile = XmlFile;
         this.document = null;
+        this.parser = new XMLParser(xmlFile);
     }
 
     //GET
@@ -50,6 +54,9 @@ public class OpenStreetMapAPI {
     public Document getDocument(){
         return this.document;
     }
+    public XMLParser getParser(){
+        return this.parser;
+    }
 
     //SET
     public void setXmlFile(String xmlFile) {
@@ -58,55 +65,28 @@ public class OpenStreetMapAPI {
     public void setDocument(Document document) {
         this.document = document;
     }
+    public void setParser(XMLParser parser){
+        this.parser = parser;
+    }
     
     //METODI
     public OCoordinate TrovaCoordinate(String luogo) {
-        PrintWriter out;
+        HHttp h = new HHttp();
+        String stringaURL = null;
         try {
-            out = new PrintWriter(xmlFile);
-            String stringaURL = "https://nominatim.openstreetmap.org/search?q=" + encodeValue(luogo) + "&format=xml&addressdetails=1";
-            URL url = new URL(stringaURL);
-            Scanner s = new Scanner(url.openStream());
-            s.useDelimiter("\u001a");
-            String testo = s.next();
-            out.print(testo);
-            out.close();
+            stringaURL = "https://nominatim.openstreetmap.org/search?q=" + h.encodeValue(luogo) + "&format=xml&addressdetails=1";
+            
+            parser.HttpRequestAndXMLFileBuilding(stringaURL);
         
-            //N.B: può ritornare valore NULL
-            return this.ConvertiDaXML(xmlFile);        
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
+            NodeList lista = parser.getElements("place");
+            if(lista != null){
+                Element elemento = (Element)lista.item(0);
+                return new OCoordinate(elemento.getAttribute("lat"), elemento.getAttribute("lon"));
+            } else return null;        
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ParserConfigurationException ex) {
-            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SAXException ex) {
-            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;    
-    }
-    
-    private OCoordinate ConvertiDaXML(String xmlFile) throws ParserConfigurationException, SAXException, IOException{
-        DocumentBuilderFactory factory;
-        DocumentBuilder builder;
-        Element root, element;
-        NodeList nodelist;
-        factory = DocumentBuilderFactory.newInstance();
-        builder = factory.newDocumentBuilder();
-        
-        document = builder.parse(xmlFile);
-        root = document.getDocumentElement();
-        
-        //N.B: essendo una procedura automatica, considero il primo risultato come quello più attendibile
-        nodelist = root.getElementsByTagName("place");
-        if(nodelist != null && nodelist.getLength() > 0){
-            element = (Element) nodelist.item(0);
-            return new OCoordinate(element.getAttribute("lat"), element.getAttribute("lon"));
-        } else return null;
+        return null;  
     }
     
     public double DistanzaTraDuePunti(OCoordinate c1, OCoordinate c2){
@@ -124,9 +104,5 @@ public class OpenStreetMapAPI {
 
     private double deg2rad(double deg) {
         return deg * (Math.PI/180);
-    }
-    
-    private String encodeValue(String ricerca) throws UnsupportedEncodingException {
-        return URLEncoder.encode(ricerca, StandardCharsets.UTF_8.toString());
     }
 }
