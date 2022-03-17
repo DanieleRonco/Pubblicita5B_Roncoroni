@@ -42,15 +42,36 @@ public class XMLParser {
         this.document = null;
         this.root = null;
     }
-    
+
+    //GET
+    public String getXmlFile() {
+        return xmlFile;
+    }
+    public Document getDocument() {
+        return document;
+    }
+    public Element getRoot() {
+        return root;
+    }
+
+    //SET
+    public void setXmlFile(String xmlFile) {
+        this.xmlFile = xmlFile;
+    }
+    public void setDocument(Document document) {
+        this.document = document;
+    }
+    public void setRoot(Element root) {
+        this.root = root;
+    }
+
     //METODI
     //Metodo per effettuare una richiesta http, creare il file .xml e salvare l'elemento "root"
-    public void HttpRequestAndXMLFileBuilding(String stringaURL){
+    public void XMLFileBuilding(String risposta){
         PrintWriter out = null;
         try {
             out = new PrintWriter(xmlFile);
-            HHttp httpHelper = new HHttp();
-            out.print(httpHelper.Richiesta(stringaURL));
+            out.print(risposta);
             out.close();
             
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

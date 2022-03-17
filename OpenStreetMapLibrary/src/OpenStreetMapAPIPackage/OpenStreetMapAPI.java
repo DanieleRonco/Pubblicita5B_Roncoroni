@@ -75,8 +75,8 @@ public class OpenStreetMapAPI {
         String stringaURL = null;
         try {
             stringaURL = "https://nominatim.openstreetmap.org/search?q=" + h.encodeValue(luogo) + "&format=xml&addressdetails=1";
-            
-            parser.HttpRequestAndXMLFileBuilding(stringaURL);
+
+            parser.XMLFileBuilding(h.Richiesta(stringaURL));
         
             NodeList lista = parser.getElements("place");
             if(lista != null){
