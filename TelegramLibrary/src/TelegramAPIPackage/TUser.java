@@ -14,6 +14,7 @@ public class TUser {
     private String FirstName;
     //Cognome dell'utente
     private String LastName;
+    private String Username;
     //Codice del linguaggio dell'utente
     private String LanguageCode;
     
@@ -24,6 +25,7 @@ public class TUser {
         this.Bot = false;
         this.FirstName = "";
         this.LastName = "";
+        this.Username = "";
         this.LanguageCode = "";
     }
     //Costruttore parametrico - con solo attributi obbligatori e con bot sempre a false
@@ -35,19 +37,21 @@ public class TUser {
         this.LanguageCode = "";
     }
     //Costruttore parametrico - con bot come parametro
-    public TUser(long ID, boolean Bot, String FirstName, String LastName, String LanguageCode) {
+    public TUser(long ID, boolean Bot, String FirstName, String LastName, String Username, String LanguageCode) {
         this.UserID = ID;
         this.Bot = Bot;
         this.FirstName = FirstName;
         this.LastName = LastName;
+        this.Username = Username;
         this.LanguageCode = LanguageCode;
     }
     //Costruttore parametrico - con bot sempre a false
-    public TUser(long ID, String FirstName, String LastName, String LanguageCode) {
+    public TUser(long ID, String FirstName, String LastName, String Username, String LanguageCode) {
         this.UserID = ID;
         this.Bot = false;
         this.FirstName = FirstName;
         this.LastName = LastName;
+        this.Username = Username;
         this.LanguageCode = LanguageCode;
     }
 

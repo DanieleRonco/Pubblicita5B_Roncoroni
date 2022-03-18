@@ -38,7 +38,8 @@ public class ThreadGetUpdates extends Thread {
             while(true){
                 listaUpdates = pubblicita.gettBot().getUpdates();
                 
-                if(listaUpdates.size() != 0){
+                
+                if(listaUpdates != null){
                     //c'è qualcosa all'interno della lista
                     System.out.println("ThreadGetUpdates: c'è qualcosa all'interno della lista");
                     pubblicita.VerificaESalva(listaUpdates);

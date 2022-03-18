@@ -66,6 +66,9 @@ public class XMLParser {
     }
 
     //METODI
+    
+    //Metodo per creare e salvare!
+    
     //Metodo per effettuare una richiesta http, creare il file .xml e salvare l'elemento "root"
     public void XMLFileBuilding(String risposta){
         PrintWriter out = null;

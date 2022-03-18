@@ -51,21 +51,103 @@ public class TelegramAPI {
         String risposta = httpHelper.Richiesta(getUpdatesURL);
         
         List<TUpdate> ritorno = this.ConvertiDaJSONgetUpdates(risposta);
-        if(ritorno.size() != 0) offset = (ritorno.get(ritorno.size() - 1).getUpdateID()) + 1;
+        
+        if(ritorno != null ) offset = (ritorno.get(ritorno.size() - 1).getUpdateID()) + 1;
         
         return ritorno;
     }
 
     public List<TUpdate> ConvertiDaJSONgetUpdates(String JSONBody) {
         JSONParser jsonParser = new JSONParser(JSONBody);
-        JSONArray arr = jsonParser.getJSONArray(jsonParser.getObj(), "result");
+        JSONArray arr = jsonParser.getJSONArrayIfExists(jsonParser.getObj(), "result");
         
+        if(arr != null && arr.length() != 0){
+            List<TUpdate> ListaUpdate = new ArrayList<TUpdate>();
+            for(int i = 0; i < arr.length(); i++){
+                //Elemento del vettore
+                JSONObject elemento = arr.getJSONObject(i);
+                
+                //update_id
+                int update_id = 0;
+                if(elemento.has("update_id")) update_id = elemento.getInt("update_id");
+                
+                //Messaggio
+                JSONObject messaggio = jsonParser.getComplexElementIfExists(elemento, "message");
+                int message_id = 0, date = 0;
+                String text = "";
+                
+                if(messaggio != null){
+                    //from, chat
+                    //message_id
+                    message_id = messaggio.getInt("message_id");
+                    
+                    //date
+                    date = messaggio.getInt("date");
+                    
+                    //text
+                    if(messaggio.has("text")) text = messaggio.getString("text");
+                    
+                    //from
+                    JSONObject from = jsonParser.getComplexElementIfExists(messaggio, "from");
+                    long from_id = 0;
+                    boolean from_is_bot = false;
+                    String from_first_name = "", from_last_name = "", from_nickname = "", from_language_code = "";
+                    if(from != null){
+                        //id, is_bot, first_name, last_name, username, language_code
+                        from_id = from.getLong("id");
+                        
+                        from_is_bot = from.getBoolean("is_bot");
+                        
+                        from_first_name = from.getString("first_name");
+                        
+                        if(from.has("last_name")) from_last_name = from.getString("last_name");
+                        
+                        if(from.has("nickname")) from_nickname = from.getString("nickname");
+                        
+                        if(from.has("language_code")) from_language_code = from.getString("language_code");
+                    }
+                    
+                    JSONObject chat = jsonParser.getComplexElementIfExists(messaggio, "chat");
+                    long chat_id = 0;
+                    String chat_first_name = "", chat_last_name = "", chat_nickname = "", chat_type = "";
+                    if(chat != null){
+                        
+                        chat_id = chat.getLong("id");
+                        
+                        chat_first_name = chat.getString("first_name");
+                        
+                        if(chat.has("last_name")) chat_last_name = chat.getString("last_name");
+                        
+                        if(chat.has("nickname")) chat_nickname = chat.getString("nickname");
+                        
+                        if(chat.has("type")) chat_type = chat.getString("type");
+                    }
+                    
+                    if(from != null && chat != null){
+                        TUser userDaInserire = new TUser(from_id, from_is_bot, from_first_name, from_last_name, from_nickname, from_language_code);
+                        TChat chatDaInserire = new TChat(chat_id, chat_first_name, chat_last_name, chat_nickname, chat_type);
+                        TMessage messaggioDaInserire = new TMessage(message_id, userDaInserire, chatDaInserire, date, text);
+                        TUpdate updateDaInserire = new TUpdate(update_id, messaggioDaInserire);
+                        ListaUpdate.add(updateDaInserire);
+                    }
+                }
+            }
+            return ListaUpdate;
+        } else return null;
+        
+        /*
         if(arr != null) System.out.println("ok");
         else System.out.println("No");
         
         List<TUpdate> ListaUpdate = new ArrayList<TUpdate>();
         for (int i = 0; i < arr.length(); i++)
         {
+            String ritorno 
+            //ID dell'Update
+            
+            if(jsonParser.getTextValueIfExists(arr.getJSONObject(i), ))
+            
+            
             //ID dell'update
             int id;
             if(arr.getJSONObject(i).has("update_id")) id = jsonParser.getIntValue(arr.getJSONObject(i), "update_id");
@@ -103,35 +185,26 @@ public class TelegramAPI {
         }
         
         return ListaUpdate;
-        
+        */
     }
     
     public boolean sendMessage(String testoDaInviare, String CHAT_ID) throws UnsupportedEncodingException, IOException, InterruptedException{
         //if(offset != "") aggiungi offset;
-        
-        testoDaInviare = this.encodeValue(testoDaInviare);
-        String sendMessageURL = URL + "/sendMessage?chat_id=" + CHAT_ID + "&text=" + testoDaInviare;
-        
-        HttpRequest request = HttpRequest.newBuilder()
-        .uri(URI.create(sendMessageURL))
-        .method("GET", HttpRequest.BodyPublishers.noBody())
-        .build();
-        HttpResponse<String> response = HttpClient.newHttpClient()
-        .send(request, HttpResponse.BodyHandlers.ofString());
+        HHttp httpHelper = new HHttp();
+        String sendMessageURL = URL + "/sendMessage?chat_id=" + CHAT_ID + "&text=" + httpHelper.encodeValue(testoDaInviare);
         
         //Eventualmente vedi cosa fare con la risposta
-        return this.ConvertiDaJSONsendMessage(response.body());
+        return this.ConvertiDaJSONsendMessage(httpHelper.Richiesta(sendMessageURL));
     }
     
     public boolean ConvertiDaJSONsendMessage(String JSONBody) {
-        JSONObject obj = new JSONObject(JSONBody);
-        if(obj.getBoolean("ok")) return true;
+        JSONParser jsonParser = new JSONParser(JSONBody);
+        
+        if(jsonParser.getObj().getBoolean("ok")) return true;
         else return false;
     }
     
-    private String encodeValue(String ricerca) throws UnsupportedEncodingException {
-	return URLEncoder.encode(ricerca, StandardCharsets.UTF_8.toString());
-    }
+   
 }
 
 

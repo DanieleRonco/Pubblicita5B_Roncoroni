@@ -12,6 +12,7 @@ public class TChat {
     private String FirstName;
     //Cognome dell'utente
     private String LastName;
+    private String Nickname;
     //Tipo della chat
     private String Type;
     
@@ -31,10 +32,11 @@ public class TChat {
         this.Type = "";
     }
     //Costruttore parametrico
-    public TChat(long ID, String FirstName, String LastName, String Type) {
+    public TChat(long ID, String FirstName, String LastName, String Nickname, String Type) {
         this.UserID = ID;
         this.FirstName = FirstName;
         this.LastName = LastName;
+        this.Nickname = Nickname;
         this.Type = Type;
     }
 
