@@ -4,6 +4,10 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Scuola/Tecnologie/Laboratorio/Pubblicita5B_Roncoroni/TelegramLibrary/src/TelegramAPIPackage/TelegramAPI.java</file>
+            <file>file:/C:/Scuola/Tecnologie/Laboratorio/Pubblicita5B_Roncoroni/TelegramLibrary/src/TelegramAPIPackage/TUser.java</file>
+            <file>file:/C:/Scuola/Tecnologie/Laboratorio/Pubblicita5B_Roncoroni/TelegramLibrary/src/TelegramAPIPackage/TChat.java</file>
+            <file>file:/C:/Scuola/Tecnologie/Laboratorio/Pubblicita5B_Roncoroni/TelegramLibrary/src/TelegramAPIPackage/TMessage.java</file>
+            <file>file:/C:/Scuola/Tecnologie/Laboratorio/Pubblicita5B_Roncoroni/TelegramLibrary/src/TelegramAPIPackage/TUpdate.java</file>
         </group>
     </open-files>
 </project-private>
