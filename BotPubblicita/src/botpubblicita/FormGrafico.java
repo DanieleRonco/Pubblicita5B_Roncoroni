@@ -1,8 +1,8 @@
 package botpubblicita;
 
-import FileAPIPackage.*;
-import OpenStreetMapAPIPackage.*;
-import TelegramAPIPackage.*;
+import FilePackage.*;
+import OpenStreetMapPackage.*;
+import TelegramPackage.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.logging.Level;
