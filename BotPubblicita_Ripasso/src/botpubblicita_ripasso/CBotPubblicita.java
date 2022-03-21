@@ -69,7 +69,7 @@ public class CBotPubblicita {
         ListaUtenti = new ArrayList<CUtente>();
         
         String lista = fileHelper.Leggi();
-        if(lista != ""){
+        if(lista != null){
             String righe[] = lista.split("\n");
             for(int i = 0; i < righe.length; i++){
                 String campi[] = righe[i].split(";");
