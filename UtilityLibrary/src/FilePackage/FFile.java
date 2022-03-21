@@ -83,7 +83,7 @@ public class FFile {
                     rigaLetta = fileBuffer.readLine();
                     if(rigaLetta == null) break;
 
-                    ritorno += rigaLetta + "\n"; //TODO: vedi se lo mantiene il \n
+                    ritorno += rigaLetta + "\n";
                 }
                 fileBuffer.close();
                 fileLoaded.close();
@@ -96,6 +96,6 @@ public class FFile {
             Logger.getLogger(FFile.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return "";
+        return null;
     }
 }
