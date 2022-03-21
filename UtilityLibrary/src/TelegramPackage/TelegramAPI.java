@@ -60,6 +60,8 @@ public class TelegramAPI {
                 //Elemento del vettore
                 JSONObject elemento = arr.getJSONObject(i);
                 
+                String risultato;
+                
                 //update_id
                 int update_id = 0;
                 if(elemento.has("update_id")) update_id = elemento.getInt("update_id");
@@ -141,5 +143,5 @@ public class TelegramAPI {
         
         if(jsonParser.getObj().getBoolean("ok")) return true;
         else return false;
-    }   
+    }
 }

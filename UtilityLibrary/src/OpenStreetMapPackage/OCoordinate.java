@@ -19,8 +19,10 @@ public class OCoordinate {
     }
     //Costruttore parametrico - latitudine e longitudine string
     public OCoordinate(String latitudine, String longitudine){
-        this.latitudine = Double.parseDouble(latitudine);
-        this.longitudine = Double.parseDouble(longitudine);
+        if(latitudine != "") this.latitudine = Double.parseDouble(latitudine);
+        else this.latitudine = 0;
+        if(longitudine != "") this.longitudine = Double.parseDouble(longitudine);
+        else this.longitudine = 0;
     }
 
     //GET

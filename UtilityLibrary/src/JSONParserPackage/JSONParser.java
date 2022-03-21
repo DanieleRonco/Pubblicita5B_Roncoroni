@@ -27,9 +27,6 @@ public class JSONParser {
     }
 
     //METODI
-    
-    //Metodo per creare e salvare!
-    
     //Metodo per ottenere un elemento vettore indicandone il nome e l'elemento nel quale è contenuto
     // N.B: controlla se esiste => può ritornare valore null
     public JSONArray getJSONArrayIfExists(JSONObject elemento, String nome){
@@ -43,4 +40,10 @@ public class JSONParser {
         if(elemento.has(nome)) return elemento.getJSONObject(nome);
         else return null;
     }
+    
+    //Metodo per controllare se l'elemento indicato ha il "campo" indicato e, in tal caso, ottenerne il valore (String, boolean, int ...)
+    //{ inutile } perché basta fare
+    //type valore = null/false/0;
+    //if(elemento.has(nome)) valore = elemento.getString(nome) .getBoolean(nome) .getInt(nome) ...;
+    //else { ... }
 }

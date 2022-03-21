@@ -60,8 +60,6 @@ public class XMLParser {
 
     //METODI
     
-    //Metodo per creare e salvare!
-    
     //Metodo per effettuare una richiesta http, creare il file .xml e salvare l'elemento "root"
     public void XMLFileBuilding(String risposta){
         PrintWriter out = null;
@@ -86,7 +84,8 @@ public class XMLParser {
         }
     }
 
-    //Metodo per ottenere la lista di elementi aventi il nome specificato
+    //Metodo per ottenere la lista di elementi aventi il nome specificato (0, 1 o più)
+    // N.B: nel passaggio del parametro potrebbe essere necessario effettuare il cast (es."(Element)lista.item(POSIZIONE)") se 'element' è in una lista
     public NodeList getElements(Element elemento, String nome){
         NodeList ritorno = elemento.getElementsByTagName(nome);
         if(ritorno != null && ritorno.getLength() > 0) return ritorno;
@@ -95,9 +94,10 @@ public class XMLParser {
     
     //Metodo per ottenere il valore testuale dell'attributo di un elemento specificato
     //{ inutile } perché già ritorna "" se non c'è nulla
+    //elemento.getAttribute(nome);
     
-    //Metodo per ottenere il valore testuale dell’elemento figlio specificato
-    // N.B: nel passaggio del parametro potrebbe essere necessario effettuare il cast (es."(Element)lista.item(POSIZIONE)")
+    //Metodo per ottenere il valore testuale dell’elemento figlio specificato (0 o 1)
+    // N.B: nel passaggio del parametro potrebbe essere necessario effettuare il cast (es."(Element)lista.item(POSIZIONE)") se 'element' è in una lista
     public String getTextValue(Element element, String tag) {
         NodeList nodelist = element.getElementsByTagName(tag);
         if (nodelist != null && nodelist.getLength() > 0) {
@@ -119,5 +119,10 @@ public class XMLParser {
     //Metodo per ottenere il valore numerico dell’elemento figlio specificato
     public double getDoubleValue(Element element, String tag) {
         return Double.parseDouble(getTextValue(element, tag));
+    }
+    
+    //Metodo per ottenere il valore numerico dell’elemento figlio specificato
+    public Long getLongValue(Element element, String tag) {
+        return Long.parseLong(getTextValue(element, tag));
     }
 }
