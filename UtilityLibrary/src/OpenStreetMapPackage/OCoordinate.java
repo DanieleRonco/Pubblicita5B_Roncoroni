@@ -12,11 +12,6 @@ public class OCoordinate {
     private double longitudine;
     
     //COSTRUTTORI
-    //Costruttore di default
-    public OCoordinate(){
-        this.latitudine = 0;
-        this.longitudine = 0;
-    }
     //Costruttore parametrico - latitudine e longitudine long
     public OCoordinate(double latitudine, double longitudine){
         this.latitudine = latitudine;

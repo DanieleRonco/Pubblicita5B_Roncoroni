@@ -34,12 +34,6 @@ public class OpenStreetMapAPI {
     private XMLParser parser;
     
     //COSTRUTTORI
-    //Costruttore di default
-    public OpenStreetMapAPI(){
-        this.xmlFile = "";
-        this.document = null;
-        this.parser = new XMLParser();
-    }
     //Costruttore parametrico - come solo parametro xmlFile
     public OpenStreetMapAPI(String XmlFile){
         this.xmlFile = XmlFile;
@@ -70,6 +64,7 @@ public class OpenStreetMapAPI {
     }
     
     //METODI
+    //Metodo per ottenere le coordinate di un luogo
     public OCoordinate TrovaCoordinate(String luogo) {
         HHttp h = new HHttp();
         String stringaURL = null;
@@ -78,7 +73,7 @@ public class OpenStreetMapAPI {
 
             parser.XMLFileBuilding(h.Richiesta(stringaURL));
         
-            NodeList lista = parser.getElements("place");
+            NodeList lista = parser.getElements(parser.getRoot(), "place");
             if(lista != null){
                 Element elemento = (Element)lista.item(0);
                 return new OCoordinate(elemento.getAttribute("lat"), elemento.getAttribute("lon"));
@@ -89,6 +84,7 @@ public class OpenStreetMapAPI {
         return null;  
     }
     
+    //Metodo per ottenere la distanza (in km) tra due punti (coordinate)
     public double DistanzaTraDuePunti(OCoordinate c1, OCoordinate c2){
         double R = 6371; //raggio terrestre (km)
         double dLat = deg2rad(c2.getLatitudine()-c1.getLatitudine());
@@ -102,7 +98,54 @@ public class OpenStreetMapAPI {
         return R * c; //distanza (km)
     }
 
+    //Metodo per convertire gradi in radianti
     private double deg2rad(double deg) {
         return deg * (Math.PI/180);
+    }
+    
+    //Metodo per ottenere una lista di "Place"
+    public List<OPlace> ListaDiPlace(String luogo){
+        List<OPlace> ritorno = new ArrayList<OPlace>();
+        try {
+            HHttp httpHelper = new HHttp();
+            XMLParser parserPlace = new XMLParser("xml/place.xml");
+            
+            String stringaURL = "https://nominatim.openstreetmap.org/search?q=" + httpHelper.encodeValue(luogo) + "&format=xml&addressdetails=1";
+            parserPlace.XMLFileBuilding(httpHelper.Richiesta(stringaURL));
+            
+            NodeList listaPlace = parserPlace.getElements(parserPlace.getRoot(), "place");
+            if(listaPlace != null){
+                Element place;
+                for(int i = 0; i < listaPlace.getLength(); i++){
+                    place = (Element) listaPlace.item(i);
+                    
+                    OCoordinate coordinateDaInserire = new OCoordinate(place.getAttribute("lat"), place.getAttribute("lon"));
+                    
+                    String city = parserPlace.getTextValue(place, "city");
+                    if(city == null) city = "";
+                    
+                    String county = parserPlace.getTextValue(place, "county");
+                    if(county == null) county = "";
+                    
+                    String state = parserPlace.getTextValue(place, "state");
+                    if(state == null) state = "";
+                    
+                    String postcode = parserPlace.getTextValue(place, "postcode");
+                    if(postcode == null) postcode = "";
+                    
+                    String country = parserPlace.getTextValue(place, "country");
+                    if(country == null) country = "";
+                    
+                    String countrycode = parserPlace.getTextValue(place, "country_code");
+                    if(countrycode == null) countrycode = "";
+                    
+                    OPlace daInserire = new OPlace(coordinateDaInserire, city, county, state, postcode, country, countrycode);
+                    ritorno.add(daInserire);
+                }
+            } else return null;
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(OpenStreetMapAPI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return ritorno;
     }
 }

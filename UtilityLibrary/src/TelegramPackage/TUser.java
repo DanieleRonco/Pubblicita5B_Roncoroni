@@ -20,15 +20,6 @@ public class TUser {
     private String LanguageCode;
     
     //COSTRUTTORI
-    //Costruttore di default
-    public TUser(){
-        this.UserID = 0;
-        this.Bot = false;
-        this.FirstName = "";
-        this.LastName = "";
-        this.Username = "";
-        this.LanguageCode = "";
-    }
     //Costruttore parametrico - con solo attributi obbligatori e con bot sempre a false
     public TUser(long ID, String FirstName){
         this.UserID = ID;

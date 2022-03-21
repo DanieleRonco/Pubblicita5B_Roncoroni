@@ -12,11 +12,6 @@ public class TUpdate {
     private TMessage Messaggio;
     
     //COSTRUTTORI
-    //Costruttore di default
-    public TUpdate(){
-        this.UpdateID = 0;
-        this.Messaggio = null;
-    }
     //Costruttore parametrico
     public TUpdate(long UpdateID, TMessage Messaggio){
         this.UpdateID = UpdateID;

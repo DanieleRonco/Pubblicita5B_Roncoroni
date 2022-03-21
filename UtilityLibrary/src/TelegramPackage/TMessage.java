@@ -18,14 +18,6 @@ public class TMessage {
     private String Text;
     
     //COSTRUTTORI
-    //Costruttore di default
-    public TMessage() {
-        this.MessageID = 0;
-        this.From = null;
-        this.Chat = null;
-        this.Date = 0;
-        this.Text = "";
-    }
     //Costruttore parametrico
     public TMessage(long MessageID, TUser From, TChat Chat, long Date, String Text) {
         this.MessageID = MessageID;

@@ -11,10 +11,6 @@ public class JSONParser {
     JSONObject obj;
     
     //COSTRUTTORE
-    //Costruttore di default
-    public JSONParser(){
-        this.obj = null;
-    }
     //Costruttore parametrico
     public JSONParser(String JSONBody){
         this.obj = new JSONObject(JSONBody);

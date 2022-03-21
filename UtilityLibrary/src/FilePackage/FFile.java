@@ -20,10 +20,6 @@ public class FFile {
     private String percorso;
 
     //COSTRUTTORI
-    //Costruttore di default
-    public FFile() {
-        this.percorso = "";
-    }
     //Costruttore parametrico
     public FFile(String percorso) {
         this.percorso = percorso;

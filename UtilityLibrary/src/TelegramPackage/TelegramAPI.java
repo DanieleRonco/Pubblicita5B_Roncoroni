@@ -28,13 +28,6 @@ public class TelegramAPI {
     long offset;
     
     //COSTRUTTORI
-    //Costruttore di default
-    public TelegramAPI(){
-        this.API_KEY = "";
-        this.URL = "";
-        
-        this.offset = 0;
-    }
     //Costruttore parametrico
     public TelegramAPI(String API_KEY){
         this.API_KEY = API_KEY;

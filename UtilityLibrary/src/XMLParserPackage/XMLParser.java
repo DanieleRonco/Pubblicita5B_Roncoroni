@@ -29,12 +29,6 @@ public class XMLParser {
     private Element root;
     
     //COSTRUTTORE
-    //Costruttore di default
-    public XMLParser(){
-        this.xmlFile = "";
-        this.document = null;
-        this.root = null;
-    }
     //Costruttore parametrico - come solo parametro xmlFile
     public XMLParser(String xmlFile){
         this.xmlFile = xmlFile;
@@ -93,14 +87,14 @@ public class XMLParser {
     }
 
     //Metodo per ottenere la lista di elementi aventi il nome specificato
-    public NodeList getElements(String nome){
-        NodeList ritorno = root.getElementsByTagName(nome);
+    public NodeList getElements(Element elemento, String nome){
+        NodeList ritorno = elemento.getElementsByTagName(nome);
         if(ritorno != null && ritorno.getLength() > 0) return ritorno;
         else return null;
     }
     
     //Metodo per ottenere il valore testuale dell'attributo di un elemento specificato
-    //{ inutile }
+    //{ inutile } perché già ritorna "" se non c'è nulla
     
     //Metodo per ottenere il valore testuale dell’elemento figlio specificato
     // N.B: nel passaggio del parametro potrebbe essere necessario effettuare il cast (es."(Element)lista.item(POSIZIONE)")

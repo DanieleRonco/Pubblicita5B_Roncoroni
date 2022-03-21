@@ -18,14 +18,6 @@ public class TChat {
     private String Type;
     
     //COSTRUTTORI
-    //Costruttore di default
-    public TChat(){
-        this.UserID = 0;
-        this.FirstName = "";
-        this.LastName = "";
-        this.Username = "";
-        this.Type = "";
-    }
     //Costruttore parametrico - con solo attributi obbligatori
     public TChat(long ID, String FirstName){
         this.UserID = ID;
