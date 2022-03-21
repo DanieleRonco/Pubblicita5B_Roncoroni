@@ -19,14 +19,12 @@ public class CBotPubblicita {
     private TelegramAPI tAPI;
     private FFile fileHelper;
     private HHttp httpHelper;
-    private List<CUtente> ListaUtenti;
     
     public CBotPubblicita(){
         this.osmAPI = null;
         this.tAPI = null;
         this.fileHelper = null;
         this.httpHelper = null;
-        this.ListaUtenti = null;
     }
 
     public CBotPubblicita(OpenStreetMapAPI osmAPI, TelegramAPI tAPI, String percorso) {
@@ -35,7 +33,6 @@ public class CBotPubblicita {
         this.fileHelper = new FFile(percorso);
         this.httpHelper = new HHttp();
         this.CaricaLista();
-        String ok = "";
     }
 
     public OpenStreetMapAPI getOsmAPI() {
@@ -65,8 +62,8 @@ public class CBotPubblicita {
     }
     
     //METODI
-    private void CaricaLista(){
-        ListaUtenti = new ArrayList<CUtente>();
+    private List<CUtente> CaricaLista(){
+        List<CUtente>ListaUtenti = new ArrayList<CUtente>();
         
         String lista = fileHelper.Leggi();
         if(lista != null){
@@ -78,9 +75,13 @@ public class CBotPubblicita {
                 ListaUtenti.add(utenteDaInserire);
             }
         }
+        
+        return ListaUtenti;
     }
     
     synchronized public void GestisciUpdates(List<TUpdate> ListaUpdate){
+        List<CUtente>ListaUtenti = this.CaricaLista();
+        
         for(int i = 0; i < ListaUpdate.size(); i++){
             TUpdate update = ListaUpdate.get(i);
             
@@ -105,7 +106,7 @@ public class CBotPubblicita {
                             ListaUtenti.get(j).setLongitudine(coordinateCitta.getLongitudine());
                             
                             // salvo su file
-                            this.SovrascriviListaFile();
+                            this.SovrascriviListaFile(ListaUtenti);
                             
                             // invio il messaggio
                             String nome = update.getMessaggio().getFrom().getFirstName();
@@ -131,7 +132,7 @@ public class CBotPubblicita {
                         ListaUtenti.add(daInserire);
                         
                         // salvo sul file
-                        this.AggiungiListaFile();
+                        this.AggiungiListaFile(ListaUtenti.get(ListaUtenti.size() - 1).toCsv());
                         
                         // invio il messaggio
                         String testoMessaggio = "Ciao, " + nome + "\nRegistrazione effettuata!\nLa tua posizione è stata salvata a queste coordinate:\n" + visualizzaPosizione;
@@ -146,22 +147,23 @@ public class CBotPubblicita {
         }
     }
     
-    private void SovrascriviListaFile(){
+    private void SovrascriviListaFile(List<CUtente> ListaUtenti){        
         String daScrivere = "";
         for(int i = 0; i < ListaUtenti.size(); i++){
             daScrivere += ListaUtenti.get(i).toCsv();
         }
+        
         fileHelper.AppendOSovrascriviFile(daScrivere, false);
     }
     
-    private void AggiungiListaFile(){
-        String daScrivere = ListaUtenti.get(ListaUtenti.size() - 1).toCsv();
+    private void AggiungiListaFile(String daScrivere){
         fileHelper.AppendOSovrascriviFile(daScrivere, true);
     }
     
     synchronized public void InviaPubblicita(String citta, Double raggio, String testo){
+        List<CUtente>ListaUtenti = this.CaricaLista();
+        
         int c = 0;
-        this.CaricaLista();
         OCoordinate coordinateCentro = osmAPI.TrovaCoordinate(citta);
         String testoMessaggio;
         for(int i = 0; i < ListaUtenti.size(); i++){
